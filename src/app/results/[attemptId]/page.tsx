@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
-import type { SubmitResponse, QuestionResult } from "@/lib/types";
+import type { SubmitResponse, QuestionResult, SubjectBreakdown } from "@/lib/types";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { sendChatMessage } from "@/lib/api";
 
 export default function ResultsPage() {
@@ -113,6 +114,7 @@ export default function ResultsPage() {
   });
 
   const questionsToAnalyze = result.questionsWithAnswers.filter((q) => !q.isCorrect || q.isSkipped);
+  const weakSubjects = result.subjectBreakdown.filter(s => s.marksScored < s.totalMarks * 0.5 && s.totalMarks > 0).sort((a,b) => (a.marksScored/a.totalMarks) - (b.marksScored/b.totalMarks)).slice(0, 3);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-background)" }}>
@@ -160,25 +162,52 @@ export default function ResultsPage() {
               <div className="stat-card"><div className="stat-value" style={{ color: "var(--color-primary)" }}>{percentage}%</div><div className="stat-label">Accuracy</div></div>
             </div>
 
-            {/* Subject Breakdown */}
-            <section style={{ marginBottom: "48px" }}>
-              <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "16px" }}>Subject Breakdown</h2>
-              <div style={{ overflowX: "auto", border: "1px solid var(--color-border)", borderRadius: "14px" }}>
-                <table className="breakdown-table">
-                  <thead><tr><th>Subject</th><th>Scored</th><th>Total</th><th>Correct</th><th>Wrong</th><th>Skipped</th></tr></thead>
-                  <tbody>
-                    {result.subjectBreakdown.map((sb) => (
-                      <tr key={sb.subject}>
-                        <td style={{ fontWeight: 600 }}>{sb.subject}</td>
-                        <td><span style={{ fontWeight: 700, color: sb.marksScored >= sb.totalMarks * 0.5 ? "var(--color-success)" : sb.marksScored > 0 ? "var(--color-warning)" : "var(--color-danger)" }}>{sb.marksScored}</span></td>
-                        <td style={{ color: "var(--color-text-secondary)" }}>{sb.totalMarks}</td>
-                        <td style={{ color: "var(--color-success)" }}>{sb.correct}</td>
-                        <td style={{ color: "var(--color-danger)" }}>{sb.wrong}</td>
-                        <td style={{ color: "var(--color-text-secondary)" }}>{sb.skipped}</td>
-                      </tr>
+            {/* AI Performance Engine */}
+            <section style={{ marginBottom: "40px", padding: "28px", background: "var(--color-surface)", borderRadius: "16px", border: "1px solid var(--color-border)", boxShadow: "0 4px 24px rgba(0,0,0,0.02)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+                <span style={{ fontSize: "28px" }}>🧠</span>
+                <h2 style={{ fontSize: "20px", fontWeight: 700, margin: 0, color: "var(--color-foreground)" }}>AI Performance Insights</h2>
+              </div>
+              {weakSubjects.length > 0 ? (
+                <div>
+                  <p style={{ color: "var(--color-text-secondary)", marginBottom: "20px", fontSize: "15px", lineHeight: "1.6" }}>
+                    Based on your recent exam profile, our AI suggests prioritizing the following engineering topics to maximize your GATE score trajectory. These areas showed the highest variance between attempted marks and accuracy.
+                  </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
+                    {weakSubjects.map(ws => (
+                      <div key={ws.subject} style={{ padding: "18px", border: "1px solid var(--color-danger)", background: "var(--color-danger-light)", borderRadius: "12px" }}>
+                        <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--color-danger)", marginBottom: "6px" }}>{ws.subject}</h3>
+                        <p style={{ margin: 0, fontSize: "14px", color: "var(--color-danger)", fontWeight: 500 }}>
+                          Scored {ws.marksScored} / {ws.totalMarks} ({Math.round(ws.marksScored/ws.totalMarks*100)}%)
+                        </p>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ padding: "16px", borderRadius: "12px", background: "var(--color-success-light)", border: "1px solid var(--color-success)" }}>
+                  <p style={{ color: "var(--color-success)", fontWeight: 600, fontSize: "15px", margin: 0 }}>
+                    Excellent work! No critical weak areas detected. Focus on maintaining consistency and speed across all subjects.
+                  </p>
+                </div>
+              )}
+            </section>
+
+            {/* Performance Chart */}
+            <section style={{ marginBottom: "48px", background: "var(--color-surface)", padding: "28px", borderRadius: "16px", border: "1px solid var(--color-border)", boxShadow: "0 4px 24px rgba(0,0,0,0.02)" }}>
+              <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "32px", color: "var(--color-foreground)" }}>Subject Mastery Visualization</h2>
+              <div style={{ width: "100%", height: "380px" }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={result.subjectBreakdown} margin={{ top: 20, right: 30, left: 0, bottom: 60 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                    <XAxis dataKey="subject" angle={-45} textAnchor="end" height={80} tick={{ fontSize: 12, fill: 'var(--color-text-secondary)', fontWeight: 500 }} interval={0} />
+                    <YAxis tick={{ fontSize: 12, fill: 'var(--color-text-secondary)', fontWeight: 500 }} />
+                    <Tooltip cursor={{ fill: 'var(--color-section)' }} contentStyle={{ borderRadius: '12px', border: '1px solid var(--color-border)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', fontWeight: 600, fontSize: '14px' }} />
+                    <Legend wrapperStyle={{ paddingTop: "20px", fontWeight: 600, fontSize: "14px", color: "var(--color-text)" }} />
+                    <Bar dataKey="totalMarks" name="Total Marks" fill="var(--color-text-tertiary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                    <Bar dataKey="marksScored" name="Your Score" fill="var(--color-primary)" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </section>
 

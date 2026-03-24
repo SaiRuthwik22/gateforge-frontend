@@ -3,24 +3,24 @@
 /* ─── GATEForge Design System — Modern Minimalist ─────────────────────────── */
 
 @theme inline {
-  --color-background: #FAFBFC;
+  --color-background: #F8FAFC;
   --color-foreground: #0F172A;
   --color-surface: #FFFFFF;
-  --color-primary: #6366F1;
-  --color-primary-hover: #4F46E5;
-  --color-primary-light: #EEF2FF;
+  --color-primary: #047857;
+  --color-primary-hover: #065F46;
+  --color-primary-light: #D1FAE5;
   --color-text: #0F172A;
-  --color-text-secondary: #64748B;
+  --color-text-secondary: #475569;
   --color-text-tertiary: #94A3B8;
   --color-border: #E2E8F0;
   --color-border-subtle: #F1F5F9;
   --color-section: #F8FAFC;
   --color-success: #10B981;
-  --color-success-light: #D1FAE5;
+  --color-success-light: #ECFDF5;
   --color-warning: #F59E0B;
-  --color-warning-light: #FEF3C7;
-  --color-danger: #EF4444;
-  --color-danger-light: #FEE2E2;
+  --color-warning-light: #FFFBEB;
+  --color-danger: #E11D48;
+  --color-danger-light: #FFE4E6;
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
 }

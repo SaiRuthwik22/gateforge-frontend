@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import type { Question, QuestionStatus } from "@/lib/types";
 import { fetchPaper, startAttempt, saveProgress, submitAttempt } from "@/lib/api";
 import { formatTime } from "@/lib/cookies";
+import { Calculator } from "@/components/Calculator";
 
 export default function TestPage() {
   const params = useParams();
@@ -22,6 +23,7 @@ export default function TestPage() {
   const [loadingMessage, setLoadingMessage] = useState(`Loading Set ${setNumber}...`);
   const [error, setError] = useState<string | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const startTimeRef = useRef<number>(Date.now());
   const autosaveRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -246,7 +248,15 @@ export default function TestPage() {
           ⏱ {formatTime(timeLeft)}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", position: "relative" }}>
+          <button className="btn btn-outline" onClick={() => setShowCalculator(!showCalculator)} style={{ marginRight: "12px", border: "1.5px solid var(--color-border)", color: "var(--color-text)", fontWeight: 700 }}>
+            🖩 Calculator
+          </button>
+          {showCalculator && (
+            <div style={{ position: "absolute", top: "50px", right: "0", zIndex: 1000 }}>
+              <Calculator />
+            </div>
+          )}
           <span className="badge badge-success">{answeredCount} answered</span>
           <span className="badge badge-warning">{markedCount} marked</span>
         </div>
