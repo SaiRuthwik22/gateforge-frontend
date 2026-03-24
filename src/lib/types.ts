@@ -100,7 +100,7 @@ export interface Attempt {
   answers: Record<string, string> | null;
 }
 
-export type QuestionStatus = "not_visited" | "current" | "answered" | "marked" | "answered_marked";
+export type QuestionStatus = "not_visited" | "current" | "answered" | "marked" | "answered_marked" | "visited_unanswered";
 
 export interface QuestionAnalysis {
   id: string;

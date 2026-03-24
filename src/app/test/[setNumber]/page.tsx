@@ -158,6 +158,7 @@ export default function TestPage() {
     if (isAnswered && isMarked) return "answered_marked";
     if (isMarked) return "marked";
     if (isAnswered) return "answered";
+    if (visited.has(q.id)) return "visited_unanswered";
     return "not_visited";
   }
 
@@ -356,6 +357,7 @@ export default function TestPage() {
             <span className="badge badge-primary">Current</span>
             <span className="badge badge-success">Answered</span>
             <span className="badge badge-warning">Marked</span>
+            <span className="badge badge-danger">Unanswered</span>
             <span className="badge badge-neutral">Not Visited</span>
           </div>
 
